@@ -1,0 +1,30 @@
+header {
+    height: 125px;
+    background-color: #fff0d9;
+}
+
+#home .container {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.portofolio-section-header {
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+}
+
+.portofoliobebas-section-img {
+    width: 70px !important;
+    height: 70px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+body {
+    background-color: red !important;
+}
