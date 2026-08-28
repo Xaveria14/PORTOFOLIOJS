@@ -2,14 +2,14 @@
 
 include "koneksi.php";
 
-$queryPerformance = mysqli_query(
+$query = mysqli_query(
     $koneksi,
-    "SELECT * FROM performance ORDER BY id ASC"
+    "SELECT ahli, nilai FROM performance ORDER BY id ASC"
 );
 
 $data = [];
 
-while ($row = mysqli_fetch_assoc($queryPerformance)) {
+while ($row = mysqli_fetch_assoc($query)) {
 
     $data[] = [
         "ahli" => $row["ahli"],

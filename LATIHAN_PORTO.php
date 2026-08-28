@@ -718,23 +718,259 @@ const performanceChart = new Chart(ctx, {
 
 
 <script>
-    setInterval(function () {
 
-    fetch("get_performance.php")
-        .then(response => response.json())
-        .then(data => {
+document.addEventListener("DOMContentLoaded", function () {
 
-            performanceChart.data.labels =
-                data.skills;
+    const canvas = document.getElementById("performanceChart");
 
-            performanceChart.data.datasets[0].data =
-                data.nilai;
+    if (!canvas) return;
 
-            performanceChart.update();
+    const ctx = canvas.getContext("2d");
 
-        });
 
-}, 2000);
+    // GRADIENT
+    const gradient = ctx.createLinearGradient(0, 0, 0, 320);
+
+    gradient.addColorStop(
+        0,
+        "rgba(255, 183, 170, 0.45)"
+    );
+
+    gradient.addColorStop(
+        0.6,
+        "rgba(255, 183, 170, 0.16)"
+    );
+
+    gradient.addColorStop(
+        1,
+        "rgba(255, 183, 170, 0)"
+    );
+
+
+    // ================= BUAT GRAFIK =================
+
+    const performanceChart = new Chart(ctx, {
+
+        type: "line",
+
+        data: {
+
+            labels: [],
+
+            datasets: [{
+
+                label: "Skill Performance",
+
+                data: [],
+
+                borderColor: "#fff7f2",
+
+                backgroundColor: gradient,
+
+                borderWidth: 4,
+
+                tension: 0.42,
+
+                fill: true,
+
+                pointRadius: 6,
+
+                pointHoverRadius: 9,
+
+                pointBackgroundColor: "#ee806e",
+
+                pointBorderColor: "#ffffff",
+
+                pointBorderWidth: 3,
+
+                pointHoverBackgroundColor: "#ffffff",
+
+                pointHoverBorderColor: "#ee806e"
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            animation: {
+                duration: 0
+            },
+
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+
+            plugins: {
+
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+
+                    backgroundColor: "#ffffff",
+
+                    titleColor: "#426d6b",
+
+                    bodyColor: "#334155",
+
+                    padding: 12,
+
+                    cornerRadius: 12,
+
+                    displayColors: false,
+
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + "% Performance";
+                        }
+                    }
+
+                }
+
+            },
+
+            scales: {
+
+                x: {
+
+                    grid: {
+                        display: false
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        color: "rgba(255,255,255,0.88)",
+
+                        font: {
+                            size: 11,
+                            weight: "600"
+                        }
+
+                    }
+
+                },
+
+                y: {
+
+                    beginAtZero: true,
+
+                    max: 100,
+
+                    grid: {
+                        color: "rgba(255,255,255,0.12)"
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+
+                        stepSize: 20,
+
+                        color: "rgba(255,255,255,0.72)",
+
+                        callback: function(value) {
+                            return value + "%";
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+
+    // ================= UPDATE DATA =================
+
+    function updatePerformance() {
+
+        fetch("get_performance.php?t=" + new Date().getTime())
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                const skillLabels =
+                    data.map(item => item.ahli);
+
+                const skillValues =
+                    data.map(item => Number(item.nilai));
+
+
+                performanceChart.data.labels =
+                    skillLabels;
+
+                performanceChart.data.datasets[0].data =
+                    skillValues;
+
+
+                performanceChart.update();
+
+
+                // UPDATE SUMMARY
+
+                if (skillValues.length > 0) {
+
+                    const highest =
+                        Math.max(...skillValues);
+
+                    const average =
+                        skillValues.reduce(
+                            (total, value) => total + value,
+                            0
+                        ) / skillValues.length;
+
+
+                    document.getElementById("highestSkill").innerText =
+                        highest + "%";
+
+                    document.getElementById("averageSkill").innerText =
+                        Math.round(average) + "%";
+
+                    document.getElementById("totalSkill").innerText =
+                        skillValues.length;
+
+                }
+
+            })
+
+            .catch(error => {
+
+                console.error(
+                    "Gagal mengambil data:",
+                    error
+                );
+
+            });
+
+    }
+
+
+    // LANGSUNG AMBIL DATA
+    updatePerformance();
+
+
+    // UPDATE OTOMATIS SETIAP 2 DETIK
+    setInterval(updatePerformance, 2000);
+
+});
+
 </script>
 
 </body>
