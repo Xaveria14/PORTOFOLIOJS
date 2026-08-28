@@ -1,3 +1,28 @@
+<?php
+include "koneksi.php";
+
+// DATA SERVICES
+$query = mysqli_query(
+    $koneksi,
+    "SELECT * FROM servise ORDER BY id ASC"
+);
+
+// DATA PERFORMANCE
+$queryPerformance = mysqli_query(
+    $koneksi,
+    "SELECT * FROM performance ORDER BY id ASC"
+);
+
+$skills = [];
+$nilai = [];
+
+while ($dataPerformance = mysqli_fetch_assoc($queryPerformance)) {
+    $skills[] = $dataPerformance['ahli'];
+    $nilai[] = (int) $dataPerformance['nilai'];
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -139,66 +164,69 @@
 </section>
 
 
-    <!-- ================= SERVICES ================= -->
-    <section id="services">
+   <!-- ================= SERVICES ================= -->
+<section id="services">
 
     <div class="services-title">
-       <span class="section-label">✦ WHAT I DO ✦</span>
 
-<h2>
-    Things I Love
-    <strong>Creating.</strong>
-</h2>
+        <span class="section-label">
+            ✦ WHAT I DO ✦
+        </span>
 
-<p>
-    A combination of <span>technology, creativity, and curiosity</span>
-    that drives me to keep learning and building.
-</p>
+        <h2>
+            Things I Love
+            <strong>Creating.</strong>
+        </h2>
+
+        <p>
+            A combination of
+            <span>technology, creativity, and curiosity</span>
+            that drives me to keep learning and building.
+        </p>
+
     </div>
+
 
     <div class="services-container">
 
-        <div class="service-card">
-            <div class="service-icon">💻</div>
-            
-            <h3>Programming</h3>
+        <?php while ($data = mysqli_fetch_assoc($query)) { ?>
 
-            <p>
-                Developing applications and solving problems
-                using various programming technologies.
-            </p>
-        </div>
+            <div class="service-card">
 
+                <div class="service-icon">
 
-        <div class="service-card">
-            <div class="service-icon">🎨</div>
+                    <?php
+                    if ($data['id'] == 1) {
+                        echo "💻";
+                    } elseif ($data['id'] == 2) {
+                        echo "🎨";
+                    } elseif ($data['id'] == 3) {
+                        echo "⚡";
+                    } else {
+                        echo "✨";
+                    }
+                    ?>
 
-            <h3>Web Design</h3>
+                </div>
 
-            <p>
-                Creating clean, modern, and responsive websites
-                with a focus on user experience.
-            </p>
-        </div>
+                <h3>
+                    <?php echo htmlspecialchars($data['Judul']); ?>
+                </h3>
 
+                <p>
+                    <?php echo htmlspecialchars($data['keterangan']); ?>
+                </p>
 
-        <div class="service-card">
-            <div class="service-icon">⚡</div>
+            </div>
 
-            <h3>Electronics</h3>
-
-            <p>
-                Exploring electronic circuits, microcontrollers,
-                and modern technology.
-            </p>
-        </div>
+        <?php } ?>
 
     </div>
 
 </section>
 
 
-    <!-- ================= ABOUT ================= -->
+  <!-- ================= ABOUT ================= -->
 <section id="about" class="about-section">
 
     <div class="container">
@@ -224,7 +252,6 @@
 
             <!-- TENTANG SAYA -->
             <div class="col-md-6">
-
                 <div class="about-card">
 
                     <div class="about-icon">
@@ -240,21 +267,17 @@
                     </p>
 
                     <div class="about-tags">
-
                         <span>Technology</span>
                         <span>Programming</span>
                         <span>Web Development</span>
-
                     </div>
 
                 </div>
-
             </div>
 
 
             <!-- PERFORMANCE -->
             <div class="col-md-6">
-
                 <div class="performance-box">
 
                     <div class="performance-title">
@@ -264,14 +287,49 @@
                             <h2>Performance</h2>
                         </div>
 
-                        <div class="performance-icon">
-                            ⚡
-                        </div>
+                        <div class="performance-icon">⚡</div>
 
                     </div>
 
 
-                   <div id="skill-container"></div>
+                    <div class="performance-chart-card">
+
+                        <div class="chart-top">
+                            <span>Skill Performance</span>
+                            <span class="chart-badge">Live Data</span>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+
+                        <div class="chart-summary">
+
+                            <div>
+                                <strong id="highestSkill">0%</strong>
+                                <span>Highest</span>
+                            </div>
+
+                            <div>
+                                <strong id="averageSkill">0%</strong>
+                                <span>Average</span>
+                            </div>
+
+                            <div>
+                                <strong id="totalSkill">0</strong>
+                                <span>Skills</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 
 </section>
 
@@ -488,7 +546,7 @@
 
 
         <!-- ================= FORM DI KANAN ================= -->
-      <form class="contact-form" action="proses.php" method="POST">
+<form class="contact-form" action="proses.php" method="POST">
 
     <div class="form-group">
         <input 
@@ -536,54 +594,148 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var canvas = document.getElementById("performanceChart");
 
+    if (!canvas) return;
 
+    var ctx = canvas.getContext("2d");
+
+    var gradient = ctx.createLinearGradient(0, 0, 0, 320);
+    gradient.addColorStop(0, "rgba(255, 183, 170, 0.45)");
+    gradient.addColorStop(0.6, "rgba(255, 183, 170, 0.16)");
+    gradient.addColorStop(1, "rgba(255, 183, 170, 0)");
+
+const performanceChart = new Chart(ctx, {
+            type: "line",
+
+        labels: <?php echo json_encode($ahli); ?>,
+
+            datasets: [{
+                label: "Skill Performance",
+               data: <?php echo json_encode($nilai); ?>,
+                borderColor: "#fff7f2",
+                backgroundColor: gradient,
+                borderWidth: 4,
+                tension: 0.42,
+                fill: true,
+
+                pointRadius: 6,
+                pointHoverRadius: 9,
+
+                pointBackgroundColor: "#ee806e",
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 3,
+
+                pointHoverBackgroundColor: "#ffffff",
+                pointHoverBorderColor: "#ee806e"
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            animation: {
+                duration: 1400,
+                easing: "easeOutQuart"
+            },
+
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+
+            plugins: {
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    backgroundColor: "#ffffff",
+                    titleColor: "#426d6b",
+                    bodyColor: "#334155",
+                    padding: 12,
+                    cornerRadius: 12,
+                    displayColors: false,
+
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + "% Performance";
+                        }
+                    }
+                }
+            },
+
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+                        color: "rgba(255,255,255,0.88)",
+                        font: {
+                            size: 11,
+                            weight: "600"
+                        }
+                    }
+                },
+
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+
+                    grid: {
+                        color: "rgba(255,255,255,0.12)"
+                    },
+
+                    border: {
+                        display: false
+                    },
+
+                    ticks: {
+                        stepSize: 20,
+                        color: "rgba(255,255,255,0.72)",
+
+                        callback: function(value) {
+                            return value + "%";
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 
 <script>
-    const skills = [
-        {
-            nama: "Web Development",
-            nilai: 43
-        },
-        {
-            nama: "Programming",
-            nilai: 80
-        },
-        {
-            nama: "Web Design",
-            nilai: 75
-        },
-        {
-            nama: "Electronics",
-            nilai: 70
-        }
-    ];
+    setInterval(function () {
 
-    const skillContainer = document.getElementById("skill-container");
+    fetch("get_performance.php")
+        .then(response => response.json())
+        .then(data => {
 
-    skills.forEach(skill => {
-        skillContainer.innerHTML += `
-            <div class="skill">
+            performanceChart.data.labels =
+                data.skills;
 
-                <div class="skill-info">
-                    <span>${skill.nama}</span>
-                    <strong>${skill.nilai}%</strong>
-                </div>
+            performanceChart.data.datasets[0].data =
+                data.nilai;
 
-                <div class="skill-bar">
-                    <div 
-                        class="skill-progress"
-                        style="width: ${skill.nilai}%">
-                    </div>
-                </div>
+            performanceChart.update();
 
-            </div>
-        `;
-    });
+        });
+
+}, 2000);
 </script>
-    
-</body>
 
+</body>
 </html>
