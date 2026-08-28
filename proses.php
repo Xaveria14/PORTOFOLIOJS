@@ -14,5 +14,4 @@ if (mysqli_query($koneksi, $query)) {
 } else {
     echo "Pesan gagal dikirim: " . mysqli_error($koneksi);
 }
-
 ?>
