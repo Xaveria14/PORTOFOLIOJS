@@ -3,17 +3,17 @@
 $host = "localhost";
 $username = "root";
 $password = "";
-$database = "id";
+$database = "20242018_db";
 
-$conn = mysqli_connect(
+$koneksi = mysqli_connect(
     $host,
     $username,
     $password,
     $database
 );
 
-if (!$conn) {
-    die("Koneksi gagal: " . mysqli_connect_error());
+if (!$koneksi) {
+    die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
 ?>
