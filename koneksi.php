@@ -11,6 +11,7 @@ $koneksi = mysqli_connect(
     $password,
     $database
 );
+
 if (!$koneksi) {
     die("Koneksi gagal: " . mysqli_connect_error());
 }
